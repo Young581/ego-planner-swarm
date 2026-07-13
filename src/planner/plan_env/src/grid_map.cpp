@@ -41,6 +41,7 @@ void GridMap::initMap(ros::NodeHandle &nh)
 
   node_.param("grid_map/visualization_truncate_height", mp_.visualization_truncate_height_, -0.1);
   node_.param("grid_map/virtual_ceil_height", mp_.virtual_ceil_height_, -0.1);
+  node_.param("grid_map/show_virtual_ceil", mp_.show_virtual_ceil_, true);
   node_.param("grid_map/virtual_ceil_yp", mp_.virtual_ceil_yp_, -0.1);
   node_.param("grid_map/virtual_ceil_yn", mp_.virtual_ceil_yn_, -0.1);
 
@@ -929,11 +930,20 @@ void GridMap::publishMapInflate(bool all_info)
   boundIndex(min_cut);
   boundIndex(max_cut);
 
+  int virtual_ceil_id = -1;
+  if (mp_.virtual_ceil_height_ > -0.5)
+    virtual_ceil_id = floor((mp_.virtual_ceil_height_ - mp_.map_origin_(2)) *
+                            mp_.resolution_inv_) - 1;
+
   for (int x = min_cut(0); x <= max_cut(0); ++x)
     for (int y = min_cut(1); y <= max_cut(1); ++y)
       for (int z = min_cut(2); z <= max_cut(2); ++z)
       {
         if (md_.occupancy_buffer_inflate_[toAddress(x, y, z)] == 0)
+          continue;
+        // Keep the ceiling in the planning buffer while optionally omitting
+        // its dense horizontal plane from the RViz point cloud.
+        if (!mp_.show_virtual_ceil_ && z == virtual_ceil_id)
           continue;
 
         Eigen::Vector3d pos;

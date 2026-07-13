@@ -54,6 +54,7 @@ add_library( traj_utils
     src/planning_visualization.cpp 
     src/polynomial_traj.cpp 
     )
+add_dependencies(traj_utils ${${PROJECT_NAME}_EXPORTED_TARGETS})
 target_link_libraries( traj_utils
     ${catkin_LIBRARIES} 
     )  
