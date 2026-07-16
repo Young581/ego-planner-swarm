@@ -217,7 +217,12 @@ namespace ego_planner
     // trigger_ = true;
     init_pt_ = odom_pos_;
 
-    Eigen::Vector3d end_wp(msg->pose.position.x, msg->pose.position.y, 1.0);
+    // Respect the commanded altitude. The upstream implementation fixed Z at
+    // 1.0 m, so a ring waypoint at z~=1.7 m was reported complete while the
+    // vehicle remained about 0.7 m below the requested center.
+    Eigen::Vector3d end_wp(msg->pose.position.x,
+                           msg->pose.position.y,
+                           msg->pose.position.z);
 
     planNextWaypoint(end_wp);
   }
